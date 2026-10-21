@@ -1,5 +1,7 @@
 # Personal Hiking Time Predictor
 
+[Open the hosted app](https://personal-hiking-time-predictor.streamlit.app/)
+
 A Streamlit app for private hiking history, personal moving-time and break models,
 and planned-route predictions. Sign in with Google through Supabase, import GPX
 recordings, choose training hikes, and save predictions to your own account.
@@ -16,6 +18,11 @@ Configure the Google Web client origin and Supabase provider before signing in.
 Browser refreshes and app restarts require signing in again; saved hiking data
 and models persist in Supabase. Existing Google users in the same Supabase project
 continue using their accounts.
+
+If a browser extension blocks Google Identity Services, allow
+`accounts.google.com` for the app and reload. The hosted sign-in button has been
+verified to render in Chrome; authenticated account testing remains a separate
+deployment check.
 
 ## Local development
 

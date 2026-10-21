@@ -10,6 +10,13 @@ passed **428 tests, 7 skipped**: six opt-in live integration tests and one
 optional personal-GPX check. Hosted tests also cover recent-login/typed deletion
 confirmation and clearing private UI state on account changes. Runtime dependency
 and compile checks passed.
+GitHub Actions subsequently passed the public-source suite on both Python 3.13
+and 3.14 after declaring the IPython development dependency used by the notebook
+tests. The hosted landing page and Google sign-in button rendered in Chrome at
+`https://personal-hiking-time-predictor.streamlit.app/`. The Google Web client's
+authorized JavaScript origin was saved and read back for that exact origin.
+Safari's Google script request was blocked in the tested browser. No Google
+consent or authenticated live-account test is claimed by this startup check.
 Live Google consent and direct authorization testing remain the operator's
 manual checks; this preparation does not assert they passed.
 
