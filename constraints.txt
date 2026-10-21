@@ -1,0 +1,18 @@
+# Direct runtime versions verified for this release (Python 3.13).
+gpxpy==1.6.2
+pandas==3.0.6
+numpy==2.5.4
+matplotlib==3.11.2
+scikit-learn==1.9.1
+joblib==1.6.0
+streamlit==1.66.0
+supabase==2.33.0
+fastapi==0.143.2
+uvicorn==0.54.0
+cryptography==50.0.2
+httpx==0.28.1
+python-dotenv==1.2.4
+defusedxml==0.7.1
+plotly==6.9.0
+folium==0.20.0
+streamlit-folium==0.27.4

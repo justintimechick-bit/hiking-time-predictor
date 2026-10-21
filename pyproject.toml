@@ -1,0 +1,43 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hiking-time-predictor"
+version = "0.3.0"
+description = "Private multi-user hiking history, personalized models, and planned-route predictions with Supabase and Streamlit."
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "gpxpy>=1.6.2,<2",
+    "pandas>=2.0",
+    "numpy>=1.24",
+    "matplotlib>=3.7",
+    "scikit-learn>=1.3",
+    "joblib>=1.3",
+    "streamlit>=1.66,<1.67",
+    "supabase>=2.28,<3",
+    "fastapi>=0.115,<1",
+    "uvicorn>=0.30,<1",
+    "cryptography>=44",
+    "httpx>=0.28,<1",
+    "python-dotenv>=1,<2",
+    "defusedxml>=0.7,<1",
+    "plotly>=6,<7",
+    "folium>=0.19,<1",
+    "streamlit-folium>=0.24,<1",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=7.4"]
+notebooks = ["jupyterlab>=4.0"]
+
+[tool.setuptools.package-data]
+hiking_time_predictor = ["google_login/*.html"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = ["integration: requires a disposable Supabase project with migrations applied"]

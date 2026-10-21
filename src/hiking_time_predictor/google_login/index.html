@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sign in with Google</title></head>
+<body style="margin:0;font-family:system-ui,sans-serif">
+<div id="google-button"></div><p id="status" role="status" style="font-size:14px;color:#4c6557"></p>
+<script>
+"use strict";
+const parentOrigin = new URL(document.referrer || window.location.href).origin;
+const send = (type, extra = {}) => window.parent.postMessage({isStreamlitMessage:true,type,...extra}, parentOrigin);
+let args, lastNonce, loaded = false, submitted = false;
+function render() {
+  if (!loaded || !args || lastNonce === args.nonce) return;
+  lastNonce = args.nonce;
+  submitted = false;
+  document.getElementById('google-button').replaceChildren();
+  google.accounts.id.initialize({client_id:args.client_id, nonce:args.nonce,
+    ux_mode:'popup', auto_select:false, use_fedcm_for_button:false,
+    callback:({credential}) => {
+      if (submitted || typeof credential !== 'string') return;
+      submitted = true;
+      document.getElementById('status').textContent = 'Verifying your sign-in…';
+      send('streamlit:setComponentValue', {value:credential, dataType:'json'});
+    }});
+  google.accounts.id.renderButton(document.getElementById('google-button'),
+    {type:'standard',theme:'outline',size:'large',text:'continue_with',width:280});
+  send('streamlit:setFrameHeight',{height:90});
+}
+window.addEventListener('message', event => {
+  if (event.source !== window.parent || event.origin !== parentOrigin || event.data.type !== 'streamlit:render') return;
+  args = event.data.args;
+  render();
+});
+const script = document.createElement('script');
+script.src = 'https://accounts.google.com/gsi/client';
+script.async = true;
+script.onload = () => {loaded = true; render();};
+script.onerror = () => {
+  document.getElementById('status').textContent = 'Google sign-in could not load. Allow accounts.google.com and reload.';
+  send('streamlit:setFrameHeight',{height:90});
+};
+document.head.appendChild(script);
+send('streamlit:componentReady',{apiVersion:1});
+send('streamlit:setFrameHeight',{height:90});
+</script></body></html>

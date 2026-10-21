@@ -1,0 +1,3 @@
+# Streamlit Community Cloud runtime. Tests/notebooks are optional local extras.
+-c constraints.txt
+-e .

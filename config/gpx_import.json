@@ -1,0 +1,10 @@
+{
+  "segment_miles": 0.5,
+  "max_gap_seconds": 120.0,
+  "stationary_speed_mph": 0.3,
+  "stationary_radius_m": 10.0,
+  "rest_window_seconds": 60.0,
+  "max_speed_mph": 8.0,
+  "elevation_window_m": 30.0,
+  "elevation_grid_m": 5.0
+}
