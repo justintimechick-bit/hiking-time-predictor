@@ -51,7 +51,8 @@ Google nonce checks enabled; do not work around login errors by disabling them.
 1. Sign into [Streamlit Community Cloud](https://share.streamlit.io/).
 2. Choose **Create app**, select this GitHub repository and branch `main`.
 3. Set the entrypoint to `streamlit_app.py` and choose your subdomain.
-4. In **Advanced settings**, select Python **3.13**.
+4. In **Advanced settings**, use Python **3.13** or the current default **3.14**.
+   GitHub Actions checks both runtimes.
 5. Copy `.streamlit/secrets.example.toml` into the Secrets editor and replace
    every placeholder. Generate `MODEL_SIGNING_KEY` locally with
    `python -c 'import secrets; print(secrets.token_urlsafe(48))'`.

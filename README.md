@@ -7,7 +7,7 @@ recordings, choose training hikes, and save predictions to your own account.
 ## Host on Streamlit Community Cloud
 
 Follow [the deployment guide](docs/STREAMLIT_CLOUD.md). Deploy branch `main` with
-entrypoint `streamlit_app.py`, Python 3.13, and the private settings shown in
+entrypoint `streamlit_app.py`, Python 3.13 or 3.14, and the private settings shown in
 [.streamlit/secrets.example.toml](.streamlit/secrets.example.toml).
 
 The hosted app uses `AUTH_MODE=streamlit`: a bundled Google sign-in button,
