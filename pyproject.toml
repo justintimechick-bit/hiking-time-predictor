@@ -29,7 +29,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["pytest>=7.4"]
+dev = ["pytest>=7.4", "ipython>=8"]
 notebooks = ["jupyterlab>=4.0"]
 
 [tool.setuptools.package-data]
