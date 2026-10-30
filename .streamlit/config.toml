@@ -1,10 +1,35 @@
 [theme]
 base = "light"
+# Forest palette. Semantic colors (info/link/charts) follow it so no element
+# falls back to Streamlit's default blue.
 primaryColor = "#24533f"
-backgroundColor = "#f8faf8"
-secondaryBackgroundColor = "#eaf0eb"
-textColor = "#243b32"
-font = "sans serif"
+backgroundColor = "#f7f9f6"
+secondaryBackgroundColor = "#ebf0e9"
+textColor = "#1f3329"
+linkColor = "#24533f"
+borderColor = "#d5dfd6"
+showWidgetBorder = true
+showSidebarBorder = true
+baseRadius = "0.6rem"
+buttonRadius = "0.6rem"
+font = "sans-serif"
+headingFont = "'Source Serif 4':https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,600;8..60,700&display=swap"
+headingFontWeights = [700, 650, 600, 600, 600, 600]
+headingFontSizes = ["2.4rem", "1.65rem", "1.3rem"]
+metricValueFontSize = "1.7rem"
+blueColor = "#3f6a80"
+blueTextColor = "#2b4d5e"
+blueBackgroundColor = "#e7eff3"
+greenColor = "#2f6b4a"
+greenTextColor = "#1f5238"
+greenBackgroundColor = "#e3efe6"
+orangeColor = "#b0601a"
+orangeTextColor = "#8a4300"
+orangeBackgroundColor = "#fbefe0"
+grayTextColor = "#4d5752"
+redTextColor = "#9e2a2b"
+dataframeHeaderBackgroundColor = "#eef3ec"
+chartCategoricalColors = ["#24533f", "#819857", "#ba852b", "#647685", "#9c5b3c", "#4f7f8f"]
 
 [server]
 maxUploadSize = 100
@@ -14,6 +39,8 @@ enableCORS = true
 
 [client]
 showErrorDetails = false
+# Hide developer chrome (Deploy, Rerun, Clear cache) from hikers.
+toolbarMode = "minimal"
 
 [browser]
 gatherUsageStats = false

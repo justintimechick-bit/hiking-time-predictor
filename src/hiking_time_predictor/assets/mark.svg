@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" viewBox="0 0 40 40" role="img" aria-label="Hiking Time">
+  <rect x="2" y="2" width="36" height="36" rx="10" fill="#24533f"/>
+  <path d="M7 31 L16 16 L21 23 L25 18 L33 31 Z" fill="#f7f9f6"/>
+  <path d="M16 16 L19 21 L16.6 20 L14.6 22 Z" fill="#819857"/>
+  <circle cx="29" cy="11" r="3" fill="#ba852b"/>
+</svg>

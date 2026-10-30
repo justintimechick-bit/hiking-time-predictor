@@ -58,14 +58,25 @@ single host, not Community Cloud.
 
 ## Account workflow
 
-- **My Dashboard:** personal activity totals, models and saved predictions.
-- **My Hiking History:** preview and confirm recordings, review breaks, select
-  individual hikes or use all uploaded history for training.
-- **My Models:** explicitly train or retrain moving-time and break models.
-- **Trail Predictor:** upload a planned route, choose hike type and one-way or
-  out-and-back direction, and inspect the map, elevation and segment estimates.
-- **Account Settings:** preferences, private exports, explicit legacy import,
-  and confirmed data/account deletion.
+The signed-in app uses top navigation (it collapses into a menu on phones):
+
+- **Dashboard:** first-run checklist for new accounts; otherwise a "Plan a hike"
+  shortcut, pace-model status (including progress toward 10 complete test hikes
+  and an out-of-date warning), saved trip plans, hiking stats and recent hikes.
+- **Plan a hike:** upload a planned GPX and the estimate appears immediately.
+  Choose hike type, one way or out and back, and break time (your usual, custom
+  or none). An optional start time adds "back around", turnaround and
+  before-sunset guidance. Save the plan, download the JSON/CSV, or copy a plain
+  trip summary to share. The last route is remembered while you switch pages.
+- **My hikes:** add GPX recordings (previewed as soon as they're chosen, with
+  duplicates flagged), choose which hikes train your pace model, and open a hike
+  for its map, elevation, pace and detected stops. Stop labels can be corrected
+  there, and a hike can be deleted after a confirmation dialog.
+- **My pace:** explicitly train or retrain the moving-time and break models, see
+  in plain language which estimate is in use and how accurate it was on your own
+  hikes, with technical evaluation details tucked away.
+- **Account:** sign-out, preferences, private data export, confirmed
+  data/account deletion, and the owner-only legacy import.
 
 Database row-level security and private Storage buckets enforce ownership using
 the signed-in user's Supabase JWT. Normal queries never use an administrator

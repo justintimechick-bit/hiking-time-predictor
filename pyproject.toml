@@ -33,7 +33,7 @@ dev = ["pytest>=7.4", "ipython>=8"]
 notebooks = ["jupyterlab>=4.0"]
 
 [tool.setuptools.package-data]
-hiking_time_predictor = ["google_login/*.html"]
+hiking_time_predictor = ["google_login/*.html", "assets/*.svg"]
 
 [tool.setuptools.packages.find]
 where = ["src"]

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="196" height="40" viewBox="0 0 196 40" role="img" aria-label="Hiking Time">
+  <rect x="1" y="2" width="36" height="36" rx="10" fill="#24533f"/>
+  <path d="M6 31 L15 16 L20 23 L24 18 L32 31 Z" fill="#f7f9f6"/>
+  <path d="M15 16 L18 21 L15.6 20 L13.6 22 Z" fill="#819857"/>
+  <circle cx="28" cy="11" r="3" fill="#ba852b"/>
+  <text x="46" y="27" font-family="'Source Serif 4', Georgia, 'Times New Roman', serif" font-size="20" font-weight="700" fill="#1d4634">Hiking Time</text>
+</svg>

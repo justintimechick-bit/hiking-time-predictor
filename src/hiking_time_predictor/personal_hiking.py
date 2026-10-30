@@ -48,7 +48,7 @@ def preview_recording(contents, filename, hike_type=None, *, config=None, break_
         filename = path.name
     if (summary['trackpoint_count'] - summary['missing_timestamp_count'] < 2
             or pd.isna(summary['elapsed_time_min']) or summary['elapsed_time_min'] <= 0):
-        raise ValueError('Completed historical activities need at least two timestamped trackpoints and positive elapsed time. Use untimed GPX on Trail Predictor.')
+        raise ValueError('Completed historical activities need at least two timestamped trackpoints and positive elapsed time. To plan a route without timestamps, use Plan a hike.')
     events = extract_break_events(points, intervals, break_config)
     return RecordingPreview(hike_id, filename, contents, summary, segments, points, events, config, break_config)
 
