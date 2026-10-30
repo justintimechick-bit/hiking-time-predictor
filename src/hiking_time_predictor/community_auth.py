@@ -121,15 +121,16 @@ def google_sign_in(config):
 
 def logout_button(config, *, key):
     import streamlit as st
-    with st.popover('Logout'):
-        st.write('Are you sure you want to log out?')
-        if st.button('Yes, log out', key=key):
+    with st.popover('Log out', icon=':material/logout:'):
+        st.write('Log out of Hiking Time?')
+        if st.button('Yes, log out', key=key, type='primary'):
             credentials = st.session_state.get('_community_auth')
             if credentials:
                 CommunityAuthManager(config).logout(credentials)
             st.session_state.clear()
             st.rerun()
-        st.caption('Close this panel to stay signed in. Logout also revokes your Supabase refresh sessions.')
+        st.caption('This signs you out on every device. Your saved hikes stay in your account. '
+                   'Close this panel to stay signed in.')
 
 
 def account_actions(config, session):
@@ -137,14 +138,24 @@ def account_actions(config, session):
     from .account_cleanup import admin_client, delete_account_data
     from .cloud_config import CloudConfig
 
-    st.subheader('Delete hiking data or account')
-    action = st.selectbox('Deletion action', ['Delete all hiking data', 'Delete my application account'])
-    delete_identity = action == 'Delete my application account'
-    phrase = 'DELETE MY ACCOUNT' if delete_identity else 'DELETE MY HIKING DATA'
-    st.caption('This permanently removes your private hiking data and models. Your Google account is preserved. Sign in within the last ten minutes before confirming.')
-    with st.form('community_account_delete'):
-        confirmation = st.text_input('Type ' + phrase + ' to confirm')
-        submitted = st.form_submit_button('Permanently delete')
+    options = ['Delete all hiking data', 'Delete my application account']
+    with st.container(key='danger_zone'):
+        st.markdown('**:material/warning: Danger zone**')
+        action = st.radio('What do you want to delete?', options, captions=[
+            'Removes your hikes, GPX files, stops, models and saved plans. You keep your account and can start over.',
+            'Removes everything above and your sign-in for this app. Your Google account is not affected.'])
+        delete_identity = action == options[1]
+        phrase = 'DELETE MY ACCOUNT' if delete_identity else 'DELETE MY HIKING DATA'
+        age = time.time() - session.created_at
+        if 0 <= age <= 600:
+            st.caption(f'You signed in {max(1, round(age / 60))} min ago, so you can delete for about '
+                       f'{max(1, round((600 - age) / 60))} more min. Download your data first if you want a copy.')
+        else:
+            st.warning('For your protection, deleting needs a fresh sign-in. Log out, sign back in, then return here '
+                       'within ten minutes.', icon=':material/lock_clock:')
+        with st.form('community_account_delete', border=False):
+            confirmation = st.text_input('Type ' + phrase + ' to confirm')
+            submitted = st.form_submit_button('Permanently delete', type='primary', icon=':material/delete_forever:')
     if submitted:
         if confirmation != phrase:
             st.error('Confirmation did not match.')
@@ -158,7 +169,8 @@ def account_actions(config, session):
             admin_config = CloudConfig.from_env(include_admin=True)
             delete_account_data(admin_client(admin_config), current.user_id, delete_identity=delete_identity)
         except Exception:
-            st.error('Cleanup did not complete. Your data stays locked if cleanup started; contact the operator to retry the pending job.')
+            st.error("Deletion didn't finish. If it had started, your data stays locked so nothing changes while it's "
+                     'incomplete; contact the app owner to finish it.')
             return
         CommunityAuthManager(config).logout(st.session_state['_community_auth'])
         st.session_state.clear()

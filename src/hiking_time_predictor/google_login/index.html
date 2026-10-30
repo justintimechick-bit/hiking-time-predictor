@@ -2,11 +2,14 @@
 <html lang="en">
 <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sign in with Google</title></head>
 <body style="margin:0;font-family:system-ui,sans-serif">
-<div id="google-button"></div><p id="status" role="status" style="font-size:14px;color:#4c6557"></p>
+<style>#status{margin:6px 0 0;font-size:14px;color:#4a6255}#status:empty{display:none}</style>
+<div id="google-button"></div><p id="status" role="status">Loading Google sign-in…</p>
 <script>
 "use strict";
 const parentOrigin = new URL(document.referrer || window.location.href).origin;
 const send = (type, extra = {}) => window.parent.postMessage({isStreamlitMessage:true,type,...extra}, parentOrigin);
+const fit = () => send('streamlit:setFrameHeight', {height: Math.max(44, Math.ceil(document.body.getBoundingClientRect().height) + 4)});
+const setStatus = text => { document.getElementById('status').textContent = text; fit(); };
 let args, lastNonce, loaded = false, submitted = false;
 function render() {
   if (!loaded || !args || lastNonce === args.nonce) return;
@@ -18,12 +21,13 @@ function render() {
     callback:({credential}) => {
       if (submitted || typeof credential !== 'string') return;
       submitted = true;
-      document.getElementById('status').textContent = 'Verifying your sign-in…';
+      setStatus('Verifying your sign-in…');
       send('streamlit:setComponentValue', {value:credential, dataType:'json'});
     }});
   google.accounts.id.renderButton(document.getElementById('google-button'),
-    {type:'standard',theme:'outline',size:'large',text:'continue_with',width:280});
-  send('streamlit:setFrameHeight',{height:90});
+    {type:'standard',theme:'outline',size:'large',text:'continue_with',shape:'pill',width:300});
+  setStatus('');
+  setTimeout(fit, 400);
 }
 window.addEventListener('message', event => {
   if (event.source !== window.parent || event.origin !== parentOrigin || event.data.type !== 'streamlit:render') return;
@@ -35,10 +39,9 @@ script.src = 'https://accounts.google.com/gsi/client';
 script.async = true;
 script.onload = () => {loaded = true; render();};
 script.onerror = () => {
-  document.getElementById('status').textContent = 'Google sign-in could not load. Allow accounts.google.com and reload.';
-  send('streamlit:setFrameHeight',{height:90});
+  setStatus('Google sign-in could not load. Allow accounts.google.com and reload.');
 };
 document.head.appendChild(script);
 send('streamlit:componentReady',{apiVersion:1});
-send('streamlit:setFrameHeight',{height:90});
+fit();
 </script></body></html>

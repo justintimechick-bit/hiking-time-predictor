@@ -4,6 +4,15 @@ import pytest
 from streamlit.testing.v1 import AppTest
 
 
+def goto(app, title):
+    """Open a top-navigation page by title (AppTest can't click the nav bar)."""
+    app._page_hash = next(h for h, i in app._registered_pages.items() if i.get('page_name') == title)
+    try:
+        return app.run()
+    finally:
+        app._page_hash = ''
+
+
 def history_app(repo):
     from hiking_time_predictor.cloud_ui import history_page
     history_page(repo)
@@ -29,7 +38,7 @@ def test_history_lists_all_hikes_and_synchronizes_select_all(history_repo):
     assert not any(b.label in ('Save training preference', 'Save training selections') for b in app.button)
     assert [app.checkbox(key=k).value for k in keys] == [True, False, False]
     assert all(app.checkbox(key=k).label == 'Morning_hike.gpx' for k in keys)
-    assert app.checkbox(key='training_select_all').label == 'Use all uploaded data to train the models'
+    assert app.checkbox(key='training_select_all').label == 'Use all my hikes'
     assert not app.checkbox(key='training_select_all').value
 
     app.checkbox(key='training_select_all').check().run()
@@ -81,7 +90,7 @@ def test_select_all_excludes_hikes_pending_deletion_and_preserves_details(histor
 
     hike = history_repo.hikes[1]
     app.button(key='details_' + hike['id']).click().run()
-    next(b for b in app.button if b.label == 'Load activity charts and original GPX').click().run()
+    # Opening a hike loads its recording and charts without a second click.
     assert not app.exception
     assert app.session_state['activity_detail'][0] == hike['id']
     assert len(app.get('plotly_chart')) == 2
@@ -95,13 +104,18 @@ def test_imported_hikes_appear_in_checklist_with_select_all(history_repo):
         ('Afternoon_hike.gpx', recording(4), 'application/gpx+xml'),
         ('Evening_hike.gpx', recording(5), 'application/gpx+xml'),
     ]).run()
-    next(b for b in app.button if b.label == 'Preview recordings').click().run()
-    next(b for b in app.button if b.label == 'Confirm import to my account').click().run()
+    # Files are previewed as soon as they are chosen; nothing is saved until confirmed.
+    assert len(history_repo.hikes) == 3
+    assert app.button(key='confirm_import').label == 'Add 2 hikes to my account'
+    app.checkbox(key=[c.key for c in app.checkbox if c.key.startswith('eligible_')][1]).uncheck().run()
+    app.button(key='confirm_import').click().run()
     assert not app.exception
     assert len(history_repo.hikes) == 5
-    assert [app.checkbox(key='training_' + h['id']).value for h in history_repo.hikes] == [True, True, True, False, False]
-    assert [h['training_enabled'] for h in history_repo.hikes] == [True, True, True, False, False]
+    # New recordings are used for learning by default; the user unchecked the second one.
+    assert [app.checkbox(key='training_' + h['id']).value for h in history_repo.hikes] == [True, True, True, True, False]
+    assert [h['training_enabled'] for h in history_repo.hikes] == [True, True, True, True, False]
     assert not app.checkbox(key='training_select_all').value
+    assert not history_repo.models()
     app.checkbox(key='training_select_all').check().run()
     assert not app.exception
     assert all(h['training_enabled'] for h in history_repo.hikes)
@@ -124,21 +138,22 @@ def test_history_selections_are_used_when_training_after_page_navigation(history
     history_repo.predictions = lambda: []
 
     app = AppTest.from_file(str(Path(__file__).parents[1] / 'streamlit_app.py'), default_timeout=15).run()
-    app.radio(key='account_page').set_value('My Hiking History').run()
+    goto(app, 'My hikes')
     app.checkbox(key='training_select_all').check().run()
     app.checkbox(key='training_' + history_repo.hikes[0]['id']).uncheck().run()
     assert not app.exception and not app.error
     assert [h['training_enabled'] for h in history_repo.hikes] == [False, True, True]
     assert not history_repo.models()
 
-    app.radio(key='account_page').set_value('My Models').run()
-    next(b for b in app.button if b.label == 'Train Models').click().run()
+    goto(app, 'My pace')
+    assert app.button(key='train_models').label == 'Train my pace model'
+    app.button(key='train_models').click().run()
     assert not app.exception and not app.error
     active = [r for r in history_repo.models() if r['is_active']]
     assert {r['model_type'] for r in active} == {'moving', 'break'}
     assert all(r['training_hike_count'] == 2 for r in active)
 
-    app.radio(key='account_page').set_value('My Hiking History').run()
+    goto(app, 'My hikes')
     assert not app.exception and not app.error
     assert [app.checkbox(key='training_' + h['id']).value for h in history_repo.hikes] == [False, True, True]
 
@@ -187,26 +202,26 @@ def test_authenticated_navigation_training_prediction_and_account_switch(monkeyp
     monkeypatch.setattr('hiking_time_predictor.predictor.load_model',no_local)
     monkeypatch.setattr('hiking_time_predictor.planned.load_break_model',no_local)
     app=AppTest.from_file(str(Path(__file__).parents[1]/'streamlit_app.py'),default_timeout=15).run()
-    assert not app.exception and app.title[0].value=='My Dashboard'
-    for page in ('My Hiking History','My Models','Account Settings','Trail Predictor'):
-        app.radio(key='account_page').set_value(page).run()
+    assert not app.exception and app.title[0].value=='Dashboard'
+    for page in ('My hikes','My pace','Account','Plan a hike'):
+        goto(app,page)
         assert not app.exception and not app.error
+        assert app.title[0].value==page
     planned=b'<gpx><rte><rtept lat="0" lon="0"><ele>100</ele></rtept><rtept lat="0" lon="0.01"><ele>120</ele></rtept></rte></gpx>'
     app.file_uploader(key='planned_gpx').set_value(('plan.gpx',planned,'application/gpx+xml')).run()
-    next(x for x in app.button if x.label=='Predict Hiking Time').click().run()
+    # Prediction runs as soon as the route is uploaded.
     assert not app.exception and not app.error
     assert app.session_state['prediction'].artifact.estimator is None
     assert app.session_state['prediction'].break_forecast.predicted_minutes is None
     for day in (1,2):
         save_recording(a,preview_recording(recording_with_pauses(day),'synthetic.gpx','day_hike'),training_enabled=True)
-    app.radio(key='account_page').set_value('My Models').run()
-    next(x for x in app.button if x.label=='Train Models').click().run()
+    goto(app,'My pace')
+    app.button(key='train_models').click().run()
     assert not app.exception and not app.error
     assert len([r for r in a.models() if r['is_active']])==2
     assert not b.models()
-    app.radio(key='account_page').set_value('Trail Predictor').run()
+    goto(app,'Plan a hike')
     app.file_uploader(key='planned_gpx').set_value(('plan.gpx',planned,'application/gpx+xml')).run()
-    next(x for x in app.button if x.label=='Predict Hiking Time').click().run()
     assert not app.exception and not app.error
     prediction = app.session_state['prediction']
     assert prediction.break_forecast.predicted_minutes > 0
@@ -217,6 +232,6 @@ def test_authenticated_navigation_training_prediction_and_account_switch(monkeyp
     current[0]=b
     app.run()
     assert not app.exception and not app.error
-    assert app.radio(key='account_page').value=='My Dashboard'
+    assert app.title[0].value=='Dashboard'
     assert 'prediction' not in app.session_state
     assert app.session_state['_bound_user']==b.user_id
